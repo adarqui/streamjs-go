@@ -13,6 +13,14 @@ type Stream struct {
 type STREAMFN func(interface{}, STREAMFN) (*Stream)
 type ZIPFN func(interface{}, interface{}) interface{}
 type MAPFN func(interface{}) interface{}
+type FILTERFN func(interface{}) bool
+
+const (
+	RANGE_OP_INC = 1
+	RANGE_OP_DEC = -1
+)
+
+type RANGE_OP interface{}
 
 func NewStream(head interface{}, tailPromise STREAMFN) (*Stream) {
 	st := new (Stream)
@@ -74,6 +82,10 @@ func (this *Stream) Tail() (*Stream, error) {
 	}
 
 	return this.tailPromise(this.headValue, this.tailPromise), nil
+}
+
+func (this *Stream) TailPromise() STREAMFN {
+	return this.tailPromise
 }
 
 func (this *Stream) Tail1() *Stream {
@@ -204,13 +216,42 @@ func (this *Stream) Force() {
 func (this *Stream) Scale() {
 }
 
-func (this *Stream) Filter() {
+func (this *Stream) Filter(ffn FILTERFN) *Stream {
+	if this.Empty() {
+		return this
+	}
+	h := this.Head1()
+	t := this.Tail1()
+	if ffn (h) {
+		return NewStream(h, func(v interface{}, fn STREAMFN) *Stream {
+			return t.Filter(ffn)
+		})
+	}	
+	return t.Filter(ffn)
 }
 
-func (this *Stream) Take() {
+func (this *Stream) Take(howmany int) *Stream {
+	if this.Empty() {
+		return this
+	}
+	if howmany == 0 {
+		return NewStream(nil, nil)
+	}
+	self := this
+	return NewStream(this.Head1(), func(v interface{}, fn STREAMFN) *Stream {
+		return self.Tail1().Take(howmany - 1);
+	})
 }
 
-func (this *Stream) Drop() {
+func (this *Stream) Drop(n int) *Stream {
+	self := this
+	for ; n > 0 ; n-- {
+		if self.Empty() {
+			return NewStream(nil, nil)
+		}
+		self = self.Tail1()
+	}
+	return NewStream(self.Head1(), self.TailPromise())
 }
 
 func (this *Stream) Member(v interface{}) (bool, error) {
@@ -274,20 +315,53 @@ func (this *Stream) Equals(st *Stream) bool {
 
 
 // FIXME - need more than ints..
-func Range (low, high interface{}) *Stream {
-	if low == nil {
-		low = 1
-	}
+func Range(low, high interface{}) *Stream {
+	return _range(RANGE_OP_INC, low, high)
+}
+
+func RangeL (low, high interface{}) *Stream {
+	return _range(RANGE_OP_INC, low, high)
+}
+
+func RangeR (high, low interface{}) *Stream {
+	return _range(RANGE_OP_DEC, high, low)
+}
+
+func _range (op RANGE_OP, low, high interface{}) *Stream {
 	if low == high {
 		return Make(low)
 	}
 	return NewStream(low, func(v interface{}, fn STREAMFN) *Stream {
 		switch t := low.(type) {
+			case float64: {
+				switch op {
+					case RANGE_OP_INC:
+						return _range(op, t+1, high)
+					case RANGE_OP_DEC:
+						return _range(op, t-1, high)
+					default:
+						return NewStream(nil, nil)
+				}
+			}
 			case int: {
-				return Range(t+1, high)
+				switch op {
+					case RANGE_OP_INC:
+						return _range(op, t+1, high)
+					case RANGE_OP_DEC:
+						return _range(op, t-1, high)
+					default:
+						return NewStream(nil, nil)
+				}
 			}
 			case rune: {
-				return Range(t+1, high)
+				switch op {
+					case RANGE_OP_INC:
+						return _range(op, t+1, high)
+					case RANGE_OP_DEC:
+						return _range(op, t-1, high)
+					default:
+						return NewStream(nil, nil)
+				}
 			}
 			default:
 				return NewStream(nil, nil)

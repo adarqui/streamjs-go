@@ -1,3 +1,5 @@
 streamjs-go.test
 pkg
 src
+*.swp
+.*.swp
