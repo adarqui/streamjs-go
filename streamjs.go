@@ -11,7 +11,8 @@ type Stream struct {
 }
 
 type STREAMFN func(interface{}, STREAMFN) (*Stream)
-type ZIPFN func(interface{}, interface{}) (interface{})
+type ZIPFN func(interface{}, interface{}) interface{}
+type MAPFN func(interface{}) interface{}
 
 func NewStream(head interface{}, tailPromise STREAMFN) (*Stream) {
 	st := new (Stream)
@@ -37,6 +38,17 @@ func Make(v... interface{}) (*Stream) {
 	restArguments := v[1:_len]
 	return NewStream(v[0], func(d interface{}, fn STREAMFN) *Stream {
 		return Make(restArguments...)
+	})
+}
+
+func FromArray(v []interface{}) (*Stream) {
+	_len := len(v)
+	if _len == 0 {
+		return NewStream(nil, nil)
+	}
+	restArguments := v[1:_len]
+	return NewStream(v[0], func(d interface{}, fn STREAMFN) *Stream {
+		return FromArray(restArguments)
 	})
 }
 
@@ -164,7 +176,14 @@ func (this *Stream) Zip(f ZIPFN, s *Stream) (*Stream) {
 	})
 }
 
-func (this *Stream) Map() {
+func (this *Stream) Map(mfn MAPFN) (*Stream) {
+	if this.Empty() {
+		return this
+	}
+	self := this
+	return NewStream(mfn(this.Head1()), func(v interface{}, fn STREAMFN) *Stream {
+		return self.Tail1().Map(mfn)
+	})
 }
 
 func (this *Stream) ConcatMap() {
@@ -252,3 +271,27 @@ func (this *Stream) Equals(st *Stream) bool {
 
 	return false
 }
+
+
+// FIXME - need more than ints..
+func Range (low, high interface{}) *Stream {
+	if low == nil {
+		low = 1
+	}
+	if low == high {
+		return Make(low)
+	}
+	return NewStream(low, func(v interface{}, fn STREAMFN) *Stream {
+		switch t := low.(type) {
+			case int: {
+				return Range(t+1, high)
+			}
+			case rune: {
+				return Range(t+1, high)
+			}
+			default:
+				return NewStream(nil, nil)
+		}
+	})
+}
+

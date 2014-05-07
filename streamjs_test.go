@@ -126,3 +126,70 @@ func Test_SJS_Equality(t *testing.T) {
 		t.Error("Test_SJS_Equality: s1.Equals(s3) != false")
 	}
 }
+
+// construction
+func Test_SJS_FromArray(t *testing.T) {
+	arr := []interface{}{1,2,3}
+	st := FromArray(arr)
+
+	if v := st.Head1(); v != 1 {
+		t.Error("Test_SJS_FromArray: st.Head1() != 1.", v)
+	}
+	if v := st.Item1(1); v != 2 {
+		t.Error("Test_SJS_FromArray: st.Item(1) != 2.", v)
+	}
+	if v := st.Item1(2); v != 3 {
+		t.Error("Test_SJS_FromArray: st.Item(2) != 3.", v)
+	}
+	if v := st.Length1(); v != 3 {
+		t.Error("Test_SJS_FromArray: st.Length() != 3.", v)
+	}
+}
+
+func Test_SJS_Range(t *testing.T) {
+	st := Range(3, 7)
+	if v := st.Length1(); v != 5 {
+		t.Error("Test_SJS_Range: st.Length1() != 5.", v)
+	}
+	if v := st.Item1(0); v != 3 {
+		t.Error("Test_SJS_Range: st.Item(0) != 3.", v)
+	}
+	if v := st.Item1(1); v != 4 {
+		t.Error("Test_SJS_Range: st.Item(1) != 4.", v)
+	}
+	if v := st.Item1(2); v != 5 {
+		t.Error("Test_SJS_Range: st.Item(2) != 5.", v)
+	}
+	if v := st.Item1(3); v != 6 {
+		t.Error("Test_SJS_Range: st.Item(3) != 6.", v)
+	}
+	if v := st.Item1(4); v != 7 {
+		t.Error("Test_SJS_Range: st.Item(4) != 7.", v)
+	}
+}
+
+
+// optional highest value
+
+// defaults to natural numbers
+
+// standard functional functions
+
+// drops
+
+// maps
+func Test_SJS_Maps(t *testing.T) {
+	alphabet_ascii := Range('A', 'Z')
+	alphabet := alphabet_ascii.Map(func(code interface{}) interface{} {
+		return 'A'
+	})
+	if v := alphabet.Head1(); v != 'A' {
+		t.Error("Test_SJS_Maps: alphabet.Head1() != 'A'.", v)
+	}
+	if v := alphabet.Tail1().Head1(); v != 'A' {
+		t.Error("Test_SJS_Maps: alphabet.Tail1().Head1() != 'A'.", v)
+	}
+	if v := alphabet.Item1(25); v != 'A' {
+		t.Error("Test_SJS_Maps: alphabet.Item(25) != 'A'.", v)
+	}
+}
