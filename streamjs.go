@@ -15,6 +15,7 @@ type ZIPFN func(interface{}, interface{}) interface{}
 type MAPFN func(interface{}) interface{}
 type FILTERFN func(interface{}) bool
 type REDUCEFN func(interface{}, interface{}) interface{}
+type WALKFN func(interface{}) interface{}
 
 const (
 	RANGE_OP_INC = 1
@@ -286,11 +287,31 @@ func (this *Stream) Sum() interface{} {
 	}
 }
 
-func (this *Stream) Walk() {
+
+func (this *Stream) Walk(fn WALKFN) {
+	this.Map(func(x interface{}) interface{} {
+		fn(x)
+		return x
+	}).Force()
 }
 
+
 func (this *Stream) Force() {
+	var st *Stream
+	var err error
+
+	st = this
+	for {
+		if st.Empty() {
+			break
+		}
+		st, err = st.Tail()
+		if err != nil {
+			break
+		}
+	}
 }
+
 
 func (this *Stream) Scale(factor interface{}) *Stream {
 	return this.Map(func(a interface{}) interface{} {
@@ -329,7 +350,7 @@ func (this *Stream) Filter(ffn FILTERFN) *Stream {
 	return t.Filter(ffn)
 }
 
-func (this *Stream) Take(howmany int) *Stream {
+func (this *Stream) Take(howmany int64) *Stream {
 	if this.Empty() {
 		return this
 	}
@@ -342,7 +363,7 @@ func (this *Stream) Take(howmany int) *Stream {
 	})
 }
 
-func (this *Stream) Drop(n int) *Stream {
+func (this *Stream) Drop(n int64) *Stream {
 	self := this
 	for ; n > 0 ; n-- {
 		if self.Empty() {
@@ -381,11 +402,10 @@ func (this *Stream) Member1(v interface{}) bool {
 	return d
 }
 
-func (this *Stream) Print() {
-}
 
 func (this *Stream) ToString() {
 }
+
 
 func (this *Stream) Dump() {
 	fmt.Printf("Dump: %v\n", this.Head1())
@@ -394,6 +414,20 @@ func (this *Stream) Dump() {
 		v.Dump()
 	}
 }
+
+
+func (this *Stream) Print(n int64) {
+	var target *Stream
+	if this.Empty() {
+		target = NewStream(nil, nil)
+	}
+	target = this.Take(n)
+	target.Walk(func(v interface{}) interface{} {
+		fmt.Printf("%v\n", v)
+		return v
+	})
+}
+
 
 func (this *Stream) Equals(st *Stream) bool {
 	if this.Empty() && st.Empty() {
@@ -418,9 +452,11 @@ func Range(low, high interface{}) *Stream {
 	return _range(RANGE_OP_INC, low, high)
 }
 
+
 func RangeL (low, high interface{}) *Stream {
 	return _range(RANGE_OP_INC, low, high)
 }
+
 
 func RangeR (high, low interface{}) *Stream {
 	return _range(RANGE_OP_DEC, high, low)

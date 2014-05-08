@@ -451,3 +451,9 @@ func Test_SJS_ConcatMap(t *testing.T) {
 		t.Error("Test_SJS_ConcatMap: everything is wrecked.")
 	}
 }
+
+
+func Test_Demo(t *testing.T) {
+	l := Range(1, 10)
+	l.Print(10)
+}
