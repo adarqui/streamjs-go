@@ -1,12 +1,10 @@
 package streamjs
 
-
 import (
-	"testing"
-	"math"
 	"fmt"
+	"math"
+	"testing"
 )
-
 
 func Test_NewStream(t *testing.T) {
 	st := NewStream("1", nil)
@@ -18,9 +16,9 @@ func Test_NewStream(t *testing.T) {
 		t.Error("Test_NewStream: st.Head() != '1'")
 	}
 
-	st2 := NewStream("1", func(v interface{}, sfn STREAMFN) (*Stream) {
-		return NewStream("2", nil);
-	});
+	st2 := NewStream("1", func(v interface{}, sfn STREAMFN) *Stream {
+		return NewStream("2", nil)
+	})
 	if l, _ := st2.Length(); l != 2 {
 		t.Error("Test_NewStream: st2.Length() != 2")
 	}
@@ -32,9 +30,8 @@ func Test_NewStream(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Make(t *testing.T) {
-	st := Make("10", "20", "30", "40");
+	st := Make("10", "20", "30", "40")
 	if v, _ := st.Length(); v != 4 {
 		t.Error("Test_SJS_1: st.Length() != 4.", v)
 	}
@@ -51,7 +48,6 @@ func Test_SJS_Make(t *testing.T) {
 		t.Error("Test_SJS_1: st.Item(2) != '30'")
 	}
 }
-
 
 func Test_SJS_HeadTail(t *testing.T) {
 	ini := ""
@@ -70,7 +66,6 @@ func Test_SJS_HeadTail(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Membership(t *testing.T) {
 	stooges := Make("Curly", "Moe", "Larry")
 	if v, _ := stooges.Member("Curly"); v != true {
@@ -80,7 +75,6 @@ func Test_SJS_Membership(t *testing.T) {
 		t.Error("Test_SJS_Membership: stooges.Member('Bobert') != false.", v)
 	}
 }
-
 
 func Test_SJS_Append(t *testing.T) {
 	s0 := NewStream(nil, nil)
@@ -106,7 +100,6 @@ func Test_SJS_Append(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Equality(t *testing.T) {
 	s1 := Make(1)
 	s2 := Make(1)
@@ -120,9 +113,8 @@ func Test_SJS_Equality(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_FromArray(t *testing.T) {
-	arr := []interface{}{1,2,3}
+	arr := []interface{}{1, 2, 3}
 	st := FromArray(arr)
 
 	if v := st.Head1(); v != 1 {
@@ -138,7 +130,6 @@ func Test_SJS_FromArray(t *testing.T) {
 		t.Error("Test_SJS_FromArray: st.Length() != 3.", v)
 	}
 }
-
 
 func Test_SJS_Range(t *testing.T) {
 	st := RangeL(3, 7)
@@ -166,7 +157,6 @@ func Test_SJS_Range(t *testing.T) {
 		t.Error("Test_SJS_Range: st.Item1(100) != 100.", v)
 	}
 
-
 	stf64 := RangeL(3.1, 7.1)
 	if v := stf64.Length1(); v != 5 {
 		t.Error("Testf64_SJS_Range: stf64.Length1() != 5.0, ", v)
@@ -192,7 +182,6 @@ func Test_SJS_Range(t *testing.T) {
 		t.Error("Testf64_SJS_Range: stf64.Item1(100) != 100.", v)
 	}
 }
-
 
 func Test_SJS_RangeL(t *testing.T) {
 	st := RangeL(3, 7)
@@ -221,7 +210,6 @@ func Test_SJS_RangeL(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_RangeR(t *testing.T) {
 	st := RangeR(7, 3)
 	if v := st.Length1(); v != 5 {
@@ -249,11 +237,10 @@ func Test_SJS_RangeR(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Take(t *testing.T) {
 	naturals := Range(1, -1)
 	first_three_naturals := naturals.Take(3)
-	
+
 	if v := first_three_naturals.Length1(); v != 3 {
 		t.Error("Test_SJS_Take: first_three_naturals.Length() != 3")
 	}
@@ -268,11 +255,10 @@ func Test_SJS_Take(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Drop(t *testing.T) {
 	naturals := Range(1, -1)
 	skip := naturals.Drop(3)
-	
+
 	if v := skip.Head1(); v != 4 {
 		t.Error("Test_SJS_Drop: skip.Head1() != 4")
 	}
@@ -287,7 +273,6 @@ func Test_SJS_Drop(t *testing.T) {
 		t.Error("Test_SJS_Take: skip.Item1(2) != 6")
 	}
 }
-
 
 func Test_SJS_Map(t *testing.T) {
 	alphabet_ascii := Range('A', 'Z')
@@ -305,18 +290,17 @@ func Test_SJS_Map(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Filter(t *testing.T) {
 	first_ten_naturals := Range(1.0, 10.0)
 
 	first_five_evens := first_ten_naturals.Filter(func(v interface{}) bool {
 		switch d := v.(type) {
-			case float64:
-				return math.Mod(d, 2) == 0
-			case int:
-				return (d % 2 == 0)
-			default:
-				return false
+		case float64:
+			return math.Mod(d, 2) == 0
+		case int:
+			return (d%2 == 0)
+		default:
+			return false
 		}
 	})
 
@@ -326,25 +310,26 @@ func Test_SJS_Filter(t *testing.T) {
 
 	first_five_evens.Map(func(v interface{}) interface{} {
 		switch d := v.(type) {
-			case float64:
-				if d / 2 != math.Floor(d / 2) {
-					t.Error("Test_SJS_Filter: map test: d / 2 != math.Floor(d/2).", d)
-				}
-				return v
-			default:
-				return v
+		case float64:
+			if d/2 != math.Floor(d/2) {
+				t.Error("Test_SJS_Filter: map test: d / 2 != math.Floor(d/2).", d)
+			}
+			return v
+		default:
+			return v
 		}
 	})
 }
-
 
 func Test_SJS_Reduce(t *testing.T) {
 	first_twenty_naturals := Range(1, 20)
 	twentieth_triangular_number_w_initial := first_twenty_naturals.Reduce(func(x, y interface{}) interface{} {
 		switch vx := x.(type) {
-			case int: {
+		case int:
+			{
 				switch vy := y.(type) {
-					case int: {
+				case int:
+					{
 						return vx + vy
 					}
 				}
@@ -355,9 +340,11 @@ func Test_SJS_Reduce(t *testing.T) {
 
 	twentieth_triangular_number := first_twenty_naturals.Reduce(func(x, y interface{}) interface{} {
 		switch vx := x.(type) {
-			case int: {
+		case int:
+			{
 				switch vy := y.(type) {
-					case int: {
+				case int:
+					{
 						return vx + vy
 					}
 				}
@@ -375,7 +362,6 @@ func Test_SJS_Reduce(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Sum(t *testing.T) {
 
 	first_twenty_naturals := Range(1, 20)
@@ -391,7 +377,6 @@ func Test_SJS_Sum(t *testing.T) {
 	}
 }
 
-
 func Test_SJS_Scale(t *testing.T) {
 	first_ten_naturals := Range(1, 10)
 	first_ten_evens := first_ten_naturals.Scale(2)
@@ -405,8 +390,6 @@ func Test_SJS_Scale(t *testing.T) {
 		t.Error("Test_SJS_Scale: first_ten_evens.Item1(9) != 20.", v)
 	}
 
-
-
 	first_ten_naturals_f64 := Range(1.0, 10.0)
 	first_ten_evens_f64 := first_ten_naturals_f64.Scale(2.0)
 	if v := first_ten_evens_f64.Length1(); v != 10.0 {
@@ -418,7 +401,6 @@ func Test_SJS_Scale(t *testing.T) {
 	if v := first_ten_evens_f64.Item1(9); v != 20.0 {
 		t.Error("Test_SJS_Scale: first_ten_evens_f64.Item1(9) != 20.0 ", v)
 	}
-
 
 	first_ten_naturals_i64 := Range(int64(1), int64(10))
 	first_ten_evens_i64 := first_ten_naturals_i64.Scale(int64(2))
@@ -432,7 +414,6 @@ func Test_SJS_Scale(t *testing.T) {
 		t.Error("Test_SJS_Scale: first_ten_evens_i64.Item1(9) != 20.", v)
 	}
 }
-
 
 func Test_SJS_ConcatMap(t *testing.T) {
 
@@ -453,7 +434,6 @@ func Test_SJS_ConcatMap(t *testing.T) {
 	}
 }
 
-
 func Test_Demo(demoT *testing.T) {
 
 	fmt.Println("Example 1:")
@@ -465,7 +445,6 @@ func Test_Demo(demoT *testing.T) {
 	fmt.Printf("\ts.Item1(1) = %d\n", s.Item1(1))
 	fmt.Printf("\ts.Item1(2) = %d\n", s.Item1(2))
 
-
 	fmt.Println("Example 2:")
 	s = Make(10, 20, 30)
 	t := s.Tail1()
@@ -475,18 +454,15 @@ func Test_Demo(demoT *testing.T) {
 	v := u.Tail1()
 	fmt.Printf("\tv.Empty() = %v\n", v.Empty())
 
-
 	fmt.Println("Example 3:")
 	s = Make(10, 20, 30)
-	for ; !s.Empty() ; s = s.Tail1() {
+	for ; !s.Empty(); s = s.Tail1() {
 		fmt.Printf("\tValue = %d\n", s.Head1())
 	}
-
 
 	fmt.Println("Example 4:")
 	s = Range(10, 20)
 	s.Print(-1)
-
 
 	fmt.Println("Example 5:")
 	doubleNumber := func(x int) int {
@@ -494,10 +470,10 @@ func Test_Demo(demoT *testing.T) {
 	}
 	doubleNumberInterface := func(x interface{}) interface{} {
 		switch v := x.(type) {
-			case int:
-				return doubleNumber(v)
-			default:
-				return v
+		case int:
+			return doubleNumber(v)
+		default:
+			return v
 		}
 	}
 
@@ -509,18 +485,17 @@ func Test_Demo(demoT *testing.T) {
 	doubles := numbers.Map(doubleNumberInterface)
 	doubles.Print(-1)
 
-
 	fmt.Println("Example 6:")
 	checkIfOdd := func(x interface{}) bool {
 		switch v := x.(type) {
-			case int:
-				if (v % 2) == 0 {
-					return false
-				} else {
-					return true
-				}
-			default:
+		case int:
+			if (v % 2) == 0 {
 				return false
+			} else {
+				return true
+			}
+		default:
+			return false
 		}
 	}
 
@@ -532,7 +507,6 @@ func Test_Demo(demoT *testing.T) {
 	onlyOdds := numbers.Filter(checkIfOdd)
 	onlyOdds.Print(-1)
 
-
 	fmt.Println("Example 7:")
 	printItem := func(x interface{}) interface{} {
 		fmt.Printf("The element is: %v\n", x)
@@ -541,12 +515,10 @@ func Test_Demo(demoT *testing.T) {
 	numbers = Range(10, 12)
 	numbers.Walk(printItem)
 
-	
 	fmt.Println("Example 8:")
 	numbers = Range(10, 100)
 	fewerNumbers := numbers.Take(10)
 	fewerNumbers.Print(10)
-
 
 	fmt.Println("Example 9:")
 	numbers = Range(1, 3)
@@ -556,36 +528,33 @@ func Test_Demo(demoT *testing.T) {
 	fmt.Println("\tNumbers 1-3 scaled by 10, Add")
 	numbers.Add(multiplesOfTen).Print(-1)
 
-
 	fmt.Println("Example 10:")
 	naturalNumbers := Range(1, -1)
 	oneToTen := naturalNumbers.Take(10)
 	oneToTen.Print(-1)
 
-
 	fmt.Println("Example 11:")
 	naturalNumbers = Range(1, -1)
 	evenNumbers := naturalNumbers.Map(func(x interface{}) interface{} {
 		switch v := x.(type) {
-			case int:
-				return 2 * v
-			default:
-				return x
+		case int:
+			return 2 * v
+		default:
+			return x
 		}
 	})
 	oddNumbers := naturalNumbers.Filter(func(x interface{}) bool {
 		switch v := x.(type) {
-			case int:
-				return (v % 2) != 0
-			default:
-				return false
+		case int:
+			return (v % 2) != 0
+		default:
+			return false
 		}
 	})
 	fmt.Println("\tTake(3) of Even Numbers from 1 to Infiniti")
 	evenNumbers.Take(3).Print(-1)
 	fmt.Println("\tTake(3) of Odd Numbers from 1 to Infinity")
 	oddNumbers.Take(3).Print(-1)
-
 
 	fmt.Println("\tExample 12:")
 	s = NewStream(10, func(v interface{}, fn STREAMFN) *Stream {
@@ -605,15 +574,12 @@ func Test_Demo(demoT *testing.T) {
 	fmt.Println("\tThree streams created manually via NewStream")
 	t.Print(-1)
 
-
 	fmt.Println("\tExample 13:")
 	s = NewStream(1, Ones)
 	s.Take(3).Print(-1)
 
-
 	fmt.Println("\tExample 14:")
 	NaturalNumbers(1, nil).Take(5).Print(-1)
-
 
 	fmt.Println("\tExample 15: Sieve from 2 to 10!")
 	Sieve(Range(2, -1)).Take(10).Print(-1)
@@ -637,18 +603,18 @@ func NaturalNumbers(v interface{}, fn STREAMFN) *Stream {
 
 func Sieve(s *Stream) *Stream {
 	h := s.Head1()
-	return NewStream(h, func (v interface{}, fn STREAMFN) *Stream {
+	return NewStream(h, func(v interface{}, fn STREAMFN) *Stream {
 		return Sieve(s.Tail1().Filter(func(x interface{}) bool {
 			switch d := x.(type) {
+			case int:
+				switch dh := h.(type) {
 				case int:
-					switch dh := h.(type) {
-							case int:
-								return d % dh != 0
-							default:
-								return false
-					}
+					return d%dh != 0
 				default:
 					return false
+				}
+			default:
+				return false
 			}
 		}))
 	})
