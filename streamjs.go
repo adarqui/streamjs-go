@@ -6,11 +6,11 @@ import (
 )
 
 type Stream struct {
-	headValue interface{}
+	headValue   interface{}
 	tailPromise STREAMFN
 }
 
-type STREAMFN func(interface{}, STREAMFN) (*Stream)
+type STREAMFN func(interface{}, STREAMFN) *Stream
 type ZIPFN func(interface{}, interface{}) interface{}
 type MAPFN func(interface{}) interface{}
 type FILTERFN func(interface{}) bool
@@ -24,14 +24,14 @@ const (
 
 type RANGE_OP interface{}
 
-func NewStream(head interface{}, tailPromise STREAMFN) (*Stream) {
-	st := new (Stream)
+func NewStream(head interface{}, tailPromise STREAMFN) *Stream {
+	st := new(Stream)
 	if head != nil {
 		st.headValue = head
 	}
 
 	if tailPromise == nil {
-		tailPromise = func(interface{}, STREAMFN) (*Stream) {
+		tailPromise = func(interface{}, STREAMFN) *Stream {
 			return NewStream(nil, nil)
 		}
 	}
@@ -40,7 +40,7 @@ func NewStream(head interface{}, tailPromise STREAMFN) (*Stream) {
 	return st
 }
 
-func Make(v... interface{}) (*Stream) {
+func Make(v ...interface{}) *Stream {
 	_len := len(v)
 	if _len == 0 {
 		return NewStream(nil, nil)
@@ -51,7 +51,7 @@ func Make(v... interface{}) (*Stream) {
 	})
 }
 
-func FromArray(v []interface{}) (*Stream) {
+func FromArray(v []interface{}) *Stream {
 	_len := len(v)
 	if _len == 0 {
 		return NewStream(nil, nil)
@@ -80,7 +80,7 @@ func (this *Stream) Head1() interface{} {
 
 func (this *Stream) Tail() (*Stream, error) {
 	if this.Empty() == true {
-		return nil, errors.New("Cannot get the tail of the empty stream.");
+		return nil, errors.New("Cannot get the tail of the empty stream.")
 	}
 
 	return this.tailPromise(this.headValue, this.tailPromise), nil
@@ -94,7 +94,6 @@ func (this *Stream) Tail1() *Stream {
 	v, _ := this.Tail()
 	return v
 }
-
 
 func (this *Stream) Item(n uint) (interface{}, error) {
 	if this.Empty() == true {
@@ -123,7 +122,7 @@ func (this *Stream) Item1(n uint) interface{} {
 
 }
 
-func (this *Stream) Length () (int64, error) {
+func (this *Stream) Length() (int64, error) {
 	var err error
 	_len := int64(0)
 	st := this
@@ -139,13 +138,12 @@ func (this *Stream) Length () (int64, error) {
 		}
 	}
 	return _len, nil
-} 
+}
 
 func (this *Stream) Length1() int64 {
 	_len, _ := this.Length()
 	return _len
 }
-
 
 /*
  * wtf?
@@ -153,31 +151,30 @@ func (this *Stream) Length1() int64 {
 func (this *Stream) Add(s *Stream) *Stream {
 	return this.Zip(func(x, y interface{}) interface{} {
 		switch xv := x.(type) {
+		case int:
+			switch yv := y.(type) {
 			case int:
-				switch yv := y.(type) {
-					case int:
-						return xv + yv
-				}
+				return xv + yv
+			}
+		case int64:
+			switch yv := y.(type) {
 			case int64:
-				switch yv := y.(type) {
-					case int64:
-						return xv + yv
-				}
+				return xv + yv
+			}
+		case float64:
+			switch yv := y.(type) {
 			case float64:
-				switch yv := y.(type) {
-					case float64:
-						return xv + yv
-				}
+				return xv + yv
+			}
+		case rune:
+			switch yv := y.(type) {
 			case rune:
-				switch yv := y.(type) {
-					case rune:
-						return xv + yv
-				}
+				return xv + yv
+			}
 		}
 		return 0
 	}, s)
 }
-
 
 func (this *Stream) Append(s *Stream) *Stream {
 	if this.Empty() {
@@ -189,8 +186,7 @@ func (this *Stream) Append(s *Stream) *Stream {
 	})
 }
 
-
-func (this *Stream) Zip(f ZIPFN, s *Stream) (*Stream) {
+func (this *Stream) Zip(f ZIPFN, s *Stream) *Stream {
 	if this.Empty() {
 		return s
 	}
@@ -198,13 +194,12 @@ func (this *Stream) Zip(f ZIPFN, s *Stream) (*Stream) {
 		return this
 	}
 	self := this
-	return NewStream(f(s.Head1(), this.Head1()), func(v interface{}, sfn STREAMFN) (*Stream) {
-		return self.Tail1().Zip(f, s.Tail1() )
+	return NewStream(f(s.Head1(), this.Head1()), func(v interface{}, sfn STREAMFN) *Stream {
+		return self.Tail1().Zip(f, s.Tail1())
 	})
 }
 
-
-func (this *Stream) Map(mfn MAPFN) (*Stream) {
+func (this *Stream) Map(mfn MAPFN) *Stream {
 	if this.Empty() {
 		return this
 	}
@@ -214,18 +209,17 @@ func (this *Stream) Map(mfn MAPFN) (*Stream) {
 	})
 }
 
-
 func (this *Stream) ConcatMap(fn MAPFN) *Stream {
 	list := this.Reduce(func(a, x interface{}) interface{} {
-			switch v := a.(type) {
-				case *Stream:
-					r := fn(x)
-					switch vr := r.(type) {
-						case *Stream:
-							return v.Append(vr)
-					}
+		switch v := a.(type) {
+		case *Stream:
+			r := fn(x)
+			switch vr := r.(type) {
+			case *Stream:
+				return v.Append(vr)
 			}
-			return nil
+		}
+		return nil
 	}, NewStream(nil, nil))
 	l, ok := list.(*Stream)
 	if ok {
@@ -234,59 +228,56 @@ func (this *Stream) ConcatMap(fn MAPFN) *Stream {
 	return NewStream(nil, nil)
 }
 
-
 func (this *Stream) Reduce(aggregator REDUCEFN, initial interface{}) interface{} {
 	if this.Empty() {
 		return initial
 	}
 
-	return this.Tail1().Reduce(aggregator, aggregator(initial, this.Head1()));
+	return this.Tail1().Reduce(aggregator, aggregator(initial, this.Head1()))
 }
-
 
 func (this *Stream) Sum() interface{} {
 	switch v := this.Head1().(type) {
-		case int:
-			return this.Reduce(func(a, b interface{}) interface{} {
-				switch va := a.(type) {
-					case int:
-						switch vb := b.(type) {
-							case int:
-								return va + vb
-						}
-						break
-					}
-					return 0
-			}, 0)
-		case int64:
-			return this.Reduce(func(a, b interface{}) interface{} {
-				switch va := a.(type) {
-					case int64:
-						switch vb := b.(type) {
-							case int64:
-								return va + vb
-						}
-						break
-					}
-					return 0.0
-			}, 0.0)
-		case float64:
-			return this.Reduce(func(a, b interface{}) interface{} {
-				switch va := a.(type) {
-					case float64:
-						switch vb := b.(type) {
-							case float64:
-								return va + vb
-						}
-						break
-					}
-					return 0.0
-			}, 0.0)
-			default:
-				return v
+	case int:
+		return this.Reduce(func(a, b interface{}) interface{} {
+			switch va := a.(type) {
+			case int:
+				switch vb := b.(type) {
+				case int:
+					return va + vb
+				}
+				break
+			}
+			return 0
+		}, 0)
+	case int64:
+		return this.Reduce(func(a, b interface{}) interface{} {
+			switch va := a.(type) {
+			case int64:
+				switch vb := b.(type) {
+				case int64:
+					return va + vb
+				}
+				break
+			}
+			return 0.0
+		}, 0.0)
+	case float64:
+		return this.Reduce(func(a, b interface{}) interface{} {
+			switch va := a.(type) {
+			case float64:
+				switch vb := b.(type) {
+				case float64:
+					return va + vb
+				}
+				break
+			}
+			return 0.0
+		}, 0.0)
+	default:
+		return v
 	}
 }
-
 
 func (this *Stream) Walk(fn WALKFN) {
 	this.Map(func(x interface{}) interface{} {
@@ -294,7 +285,6 @@ func (this *Stream) Walk(fn WALKFN) {
 		return x
 	}).Force()
 }
-
 
 func (this *Stream) Force() {
 	var st *Stream
@@ -312,25 +302,24 @@ func (this *Stream) Force() {
 	}
 }
 
-
 func (this *Stream) Scale(factor interface{}) *Stream {
 	return this.Map(func(a interface{}) interface{} {
 		switch vfactor := factor.(type) {
+		case int:
+			switch va := a.(type) {
 			case int:
-				switch va := a.(type) {
-					case int:
-						return va * vfactor
-				}
+				return va * vfactor
+			}
+		case int64:
+			switch va := a.(type) {
 			case int64:
-				switch va := a.(type) {
-					case int64:
-						return va * vfactor
-				}
+				return va * vfactor
+			}
+		case float64:
+			switch va := a.(type) {
 			case float64:
-				switch va := a.(type) {
-					case float64:
-						return va * vfactor
-				}
+				return va * vfactor
+			}
 		}
 		return a
 	})
@@ -342,11 +331,11 @@ func (this *Stream) Filter(ffn FILTERFN) *Stream {
 	}
 	h := this.Head1()
 	t := this.Tail1()
-	if ffn (h) {
+	if ffn(h) {
 		return NewStream(h, func(v interface{}, fn STREAMFN) *Stream {
 			return t.Filter(ffn)
 		})
-	}	
+	}
 	return t.Filter(ffn)
 }
 
@@ -359,13 +348,13 @@ func (this *Stream) Take(howmany int64) *Stream {
 	}
 	self := this
 	return NewStream(this.Head1(), func(v interface{}, fn STREAMFN) *Stream {
-		return self.Tail1().Take(howmany - 1);
+		return self.Tail1().Take(howmany - 1)
 	})
 }
 
 func (this *Stream) Drop(n int64) *Stream {
 	self := this
-	for ; n > 0 ; n-- {
+	for ; n > 0; n-- {
 		if self.Empty() {
 			return NewStream(nil, nil)
 		}
@@ -402,10 +391,8 @@ func (this *Stream) Member1(v interface{}) bool {
 	return d
 }
 
-
 func (this *Stream) ToString() {
 }
-
 
 func (this *Stream) Dump() {
 	fmt.Printf("Dump: %v\n", this.Head1())
@@ -414,7 +401,6 @@ func (this *Stream) Dump() {
 		v.Dump()
 	}
 }
-
 
 func (this *Stream) Print(n int64) {
 	var target *Stream
@@ -427,7 +413,6 @@ func (this *Stream) Print(n int64) {
 		return v
 	})
 }
-
 
 func (this *Stream) Equals(st *Stream) bool {
 	if this.Empty() && st.Empty() {
@@ -446,71 +431,71 @@ func (this *Stream) Equals(st *Stream) bool {
 	return false
 }
 
-
 // FIXME - need more than ints..
 func Range(low, high interface{}) *Stream {
 	return _range(RANGE_OP_INC, low, high)
 }
 
-
-func RangeL (low, high interface{}) *Stream {
+func RangeL(low, high interface{}) *Stream {
 	return _range(RANGE_OP_INC, low, high)
 }
 
-
-func RangeR (high, low interface{}) *Stream {
+func RangeR(high, low interface{}) *Stream {
 	return _range(RANGE_OP_DEC, high, low)
 }
 
-func _range (op RANGE_OP, low, high interface{}) *Stream {
+func _range(op RANGE_OP, low, high interface{}) *Stream {
 	if low == high {
 		return Make(low)
 	}
 	return NewStream(low, func(v interface{}, fn STREAMFN) *Stream {
 		switch t := low.(type) {
-			case float64: {
+		case float64:
+			{
 				switch op {
-					case RANGE_OP_INC:
-						return _range(op, t+1.0, high)
-					case RANGE_OP_DEC:
-						return _range(op, t-1.0, high)
-					default:
-						return NewStream(nil, nil)
+				case RANGE_OP_INC:
+					return _range(op, t+1.0, high)
+				case RANGE_OP_DEC:
+					return _range(op, t-1.0, high)
+				default:
+					return NewStream(nil, nil)
 				}
 			}
-			case int: {
+		case int:
+			{
 				switch op {
-					case RANGE_OP_INC:
-						return _range(op, t+1, high)
-					case RANGE_OP_DEC:
-						return _range(op, t-1, high)
-					default:
-						return NewStream(nil, nil)
+				case RANGE_OP_INC:
+					return _range(op, t+1, high)
+				case RANGE_OP_DEC:
+					return _range(op, t-1, high)
+				default:
+					return NewStream(nil, nil)
 				}
 			}
-			case int64: {
+		case int64:
+			{
 				switch op {
-					case RANGE_OP_INC:
-						return _range(op, t+1, high)
-					case RANGE_OP_DEC:
-						return _range(op, t-1, high)
-					default:
-						return NewStream(nil, nil)
+				case RANGE_OP_INC:
+					return _range(op, t+1, high)
+				case RANGE_OP_DEC:
+					return _range(op, t-1, high)
+				default:
+					return NewStream(nil, nil)
 				}
 			}
-			case rune: {
+		case rune:
+			{
 				switch op {
-					case RANGE_OP_INC:
-						return _range(op, t+1, high)
-					case RANGE_OP_DEC:
-						return _range(op, t-1, high)
-					default:
-						return NewStream(nil, nil)
+				case RANGE_OP_INC:
+					return _range(op, t+1, high)
+				case RANGE_OP_DEC:
+					return _range(op, t-1, high)
+				default:
+					return NewStream(nil, nil)
 				}
 			}
-			default:
-				return NewStream(nil, nil)
+		default:
+			return NewStream(nil, nil)
 		}
 	})
 }
-
