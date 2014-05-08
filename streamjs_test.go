@@ -431,3 +431,23 @@ func Test_SJS_Scale(t *testing.T) {
 		t.Error("Test_SJS_Scale: first_ten_evens_i64.Item1(9) != 20.", v)
 	}
 }
+
+
+func Test_SJS_ConcatMap(t *testing.T) {
+
+	// no test in stream.js lib. Used haskell example instead: concatMap (\x -> 1 `enumFromTo` x) [1,3,5] == [1,1,2,3,1,2,3,4,5]
+
+	l := Make(1, 3, 5)
+	cat := l.ConcatMap(func(x interface{}) interface{} {
+		return Range(1, x)
+	})
+
+	if v := cat.Length1(); v != 9 {
+		t.Error("Test_SJS_ConcatMap: cat.Length1() != 3.", v)
+	}
+
+	// ugly ehe!
+	if cat.Item1(0) != 1 && cat.Item1(1) != 1 && cat.Item1(2) != 2 && cat.Item1(3) != 3 && cat.Item1(4) != 1 && cat.Item1(5) != 2 && cat.Item1(6) != 3 && cat.Item1(7) != 4 && cat.Item1(5) != 5 {
+		t.Error("Test_SJS_ConcatMap: everything is wrecked.")
+	}
+}

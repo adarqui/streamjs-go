@@ -214,8 +214,23 @@ func (this *Stream) Map(mfn MAPFN) (*Stream) {
 }
 
 
-// FIXME - add
-func (this *Stream) ConcatMap() {
+func (this *Stream) ConcatMap(fn MAPFN) *Stream {
+	list := this.Reduce(func(a, x interface{}) interface{} {
+			switch v := a.(type) {
+				case *Stream:
+					r := fn(x)
+					switch vr := r.(type) {
+						case *Stream:
+							return v.Append(vr)
+					}
+			}
+			return nil
+	}, NewStream(nil, nil))
+	l, ok := list.(*Stream)
+	if ok {
+		return l
+	}
+	return NewStream(nil, nil)
 }
 
 
