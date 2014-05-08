@@ -1,4 +1,4 @@
-package streamjs
+package stream
 
 import (
 	"errors"
@@ -150,7 +150,7 @@ func (this *Stream) Length1() int64 {
 /*
  * wtf?
  */
-func (this *Stream) Add(s *Stream) interface{} {
+func (this *Stream) Add(s *Stream) *Stream {
 	return this.Zip(func(x, y interface{}) interface{} {
 		switch xv := x.(type) {
 			case int:
