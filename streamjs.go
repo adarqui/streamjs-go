@@ -14,6 +14,7 @@ type STREAMFN func(interface{}, STREAMFN) (*Stream)
 type ZIPFN func(interface{}, interface{}) interface{}
 type MAPFN func(interface{}) interface{}
 type FILTERFN func(interface{}) bool
+type REDUCEFN func(interface{}, interface{}) interface{}
 
 const (
 	RANGE_OP_INC = 1
@@ -121,9 +122,9 @@ func (this *Stream) Item1(n uint) interface{} {
 
 }
 
-func (this *Stream) Length () (uint, error) {
+func (this *Stream) Length () (int64, error) {
 	var err error
-	_len := uint(0)
+	_len := int64(0)
 	st := this
 	for {
 		v := st.Empty()
@@ -139,7 +140,7 @@ func (this *Stream) Length () (uint, error) {
 	return _len, nil
 } 
 
-func (this *Stream) Length1() uint {
+func (this *Stream) Length1() int64 {
 	_len, _ := this.Length()
 	return _len
 }
@@ -151,14 +152,26 @@ func (this *Stream) Length1() uint {
 func (this *Stream) Add(s *Stream) interface{} {
 	return this.Zip(func(x, y interface{}) interface{} {
 		switch xv := x.(type) {
-			case int: {
+			case int:
 				switch yv := y.(type) {
-					case int: {
-						v := xv + yv
-						return v
-					}
+					case int:
+						return xv + yv
 				}
-			}
+			case int64:
+				switch yv := y.(type) {
+					case int64:
+						return xv + yv
+				}
+			case float64:
+				switch yv := y.(type) {
+					case float64:
+						return xv + yv
+				}
+			case rune:
+				switch yv := y.(type) {
+					case rune:
+						return xv + yv
+				}
 		}
 		return 0
 	}, s)
@@ -175,6 +188,7 @@ func (this *Stream) Append(s *Stream) *Stream {
 	})
 }
 
+
 func (this *Stream) Zip(f ZIPFN, s *Stream) (*Stream) {
 	if this.Empty() {
 		return s
@@ -188,6 +202,7 @@ func (this *Stream) Zip(f ZIPFN, s *Stream) (*Stream) {
 	})
 }
 
+
 func (this *Stream) Map(mfn MAPFN) (*Stream) {
 	if this.Empty() {
 		return this
@@ -198,13 +213,62 @@ func (this *Stream) Map(mfn MAPFN) (*Stream) {
 	})
 }
 
+
+// FIXME - add
 func (this *Stream) ConcatMap() {
 }
 
-func (this *Stream) Reduce() {
+
+func (this *Stream) Reduce(aggregator REDUCEFN, initial interface{}) interface{} {
+	if this.Empty() {
+		return initial
+	}
+
+	return this.Tail1().Reduce(aggregator, aggregator(initial, this.Head1()));
 }
 
-func (this *Stream) Sum() {
+
+func (this *Stream) Sum() interface{} {
+	switch v := this.Head1().(type) {
+		case int:
+			return this.Reduce(func(a, b interface{}) interface{} {
+				switch va := a.(type) {
+					case int:
+						switch vb := b.(type) {
+							case int:
+								return va + vb
+						}
+						break
+					}
+					return 0
+			}, 0)
+		case int64:
+			return this.Reduce(func(a, b interface{}) interface{} {
+				switch va := a.(type) {
+					case int64:
+						switch vb := b.(type) {
+							case int64:
+								return va + vb
+						}
+						break
+					}
+					return 0.0
+			}, 0.0)
+		case float64:
+			return this.Reduce(func(a, b interface{}) interface{} {
+				switch va := a.(type) {
+					case float64:
+						switch vb := b.(type) {
+							case float64:
+								return va + vb
+						}
+						break
+					}
+					return 0.0
+			}, 0.0)
+			default:
+				return v
+	}
 }
 
 func (this *Stream) Walk() {
@@ -213,7 +277,27 @@ func (this *Stream) Walk() {
 func (this *Stream) Force() {
 }
 
-func (this *Stream) Scale() {
+func (this *Stream) Scale(factor interface{}) *Stream {
+	return this.Map(func(a interface{}) interface{} {
+		switch vfactor := factor.(type) {
+			case int:
+				switch va := a.(type) {
+					case int:
+						return va * vfactor
+				}
+			case int64:
+				switch va := a.(type) {
+					case int64:
+						return va * vfactor
+				}
+			case float64:
+				switch va := a.(type) {
+					case float64:
+						return va * vfactor
+				}
+		}
+		return a
+	})
 }
 
 func (this *Stream) Filter(ffn FILTERFN) *Stream {
@@ -336,6 +420,16 @@ func _range (op RANGE_OP, low, high interface{}) *Stream {
 			case float64: {
 				switch op {
 					case RANGE_OP_INC:
+						return _range(op, t+1.0, high)
+					case RANGE_OP_DEC:
+						return _range(op, t-1.0, high)
+					default:
+						return NewStream(nil, nil)
+				}
+			}
+			case int: {
+				switch op {
+					case RANGE_OP_INC:
 						return _range(op, t+1, high)
 					case RANGE_OP_DEC:
 						return _range(op, t-1, high)
@@ -343,7 +437,7 @@ func _range (op RANGE_OP, low, high interface{}) *Stream {
 						return NewStream(nil, nil)
 				}
 			}
-			case int: {
+			case int64: {
 				switch op {
 					case RANGE_OP_INC:
 						return _range(op, t+1, high)

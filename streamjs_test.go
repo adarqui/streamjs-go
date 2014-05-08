@@ -1,9 +1,11 @@
 package streamjs
 
+
 import (
 	"testing"
 	"math"
 )
+
 
 func Test_NewStream(t *testing.T) {
 	st := NewStream("1", nil)
@@ -14,12 +16,6 @@ func Test_NewStream(t *testing.T) {
 	if v, _ := st.Head(); v != "1" {
 		t.Error("Test_NewStream: st.Head() != '1'")
 	}
-
-	/*
-	closure := func(v interface{}, sfn STREAMFN) (*Stream) {
-		return NewStream("2", closure);
-	}
-	*/
 
 	st2 := NewStream("1", func(v interface{}, sfn STREAMFN) (*Stream) {
 		return NewStream("2", nil);
@@ -33,15 +29,6 @@ func Test_NewStream(t *testing.T) {
 	if v, _ := st2.Item(1); v != "2" {
 		t.Error("Test_NewStream: st2.Item(1) != '2'")
 	}
-
-
-
-	/*
-	st3 := NewStream("1", closure)
-	if l, _ := st3.Length(); l != 3 {
-		t.Error("Test_NewStream: st2.Length() != 3")
-	}
-	*/
 }
 
 
@@ -64,6 +51,7 @@ func Test_SJS_Make(t *testing.T) {
 	}
 }
 
+
 func Test_SJS_HeadTail(t *testing.T) {
 	ini := ""
 	fin := ""
@@ -81,6 +69,7 @@ func Test_SJS_HeadTail(t *testing.T) {
 	}
 }
 
+
 func Test_SJS_Membership(t *testing.T) {
 	stooges := Make("Curly", "Moe", "Larry")
 	if v, _ := stooges.Member("Curly"); v != true {
@@ -90,6 +79,7 @@ func Test_SJS_Membership(t *testing.T) {
 		t.Error("Test_SJS_Membership: stooges.Member('Bobert') != false.", v)
 	}
 }
+
 
 func Test_SJS_Append(t *testing.T) {
 	s0 := NewStream(nil, nil)
@@ -115,6 +105,7 @@ func Test_SJS_Append(t *testing.T) {
 	}
 }
 
+
 func Test_SJS_Equality(t *testing.T) {
 	s1 := Make(1)
 	s2 := Make(1)
@@ -128,7 +119,7 @@ func Test_SJS_Equality(t *testing.T) {
 	}
 }
 
-// construction
+
 func Test_SJS_FromArray(t *testing.T) {
 	arr := []interface{}{1,2,3}
 	st := FromArray(arr)
@@ -146,6 +137,7 @@ func Test_SJS_FromArray(t *testing.T) {
 		t.Error("Test_SJS_FromArray: st.Length() != 3.", v)
 	}
 }
+
 
 func Test_SJS_Range(t *testing.T) {
 	st := RangeL(3, 7)
@@ -171,6 +163,32 @@ func Test_SJS_Range(t *testing.T) {
 	st_infinite := Range(0, -1)
 	if v := st_infinite.Item1(100); v != 100 {
 		t.Error("Test_SJS_Range: st.Item1(100) != 100.", v)
+	}
+
+
+	stf64 := RangeL(3.1, 7.1)
+	if v := stf64.Length1(); v != 5 {
+		t.Error("Testf64_SJS_Range: stf64.Length1() != 5.0, ", v)
+	}
+	if v := stf64.Item1(0); v != 3.1 {
+		t.Error("Testf64_SJS_Range: stf64.Item(0) != 3.1, ", v)
+	}
+	if v := stf64.Item1(1); v != 4.1 {
+		t.Error("Testf64_SJS_Range: stf64.Item(1) != 4.1, ", v)
+	}
+	if v := stf64.Item1(2); v != 5.1 {
+		t.Error("Testf64_SJS_Range: stf64.Item(2) != 5.1, ", v)
+	}
+	if v := stf64.Item1(3); v != 6.1 {
+		t.Error("Testf64_SJS_Range: stf64.Item(3) != 6.1, ", v)
+	}
+	if v := stf64.Item1(4); v != 7.1 {
+		t.Error("Testf64_SJS_Range: stf64.Item(4) != 7.1, ", v)
+	}
+
+	stf64_infinite := Range(0, -1)
+	if v := stf64_infinite.Item1(100); v != 100 {
+		t.Error("Testf64_SJS_Range: stf64.Item1(100) != 100.", v)
 	}
 }
 
@@ -231,11 +249,6 @@ func Test_SJS_RangeR(t *testing.T) {
 }
 
 
-// optional highest value
-
-// defaults to natural numbers
-
-
 func Test_SJS_Take(t *testing.T) {
 	naturals := Range(1, -1)
 	first_three_naturals := naturals.Take(3)
@@ -253,6 +266,7 @@ func Test_SJS_Take(t *testing.T) {
 		t.Error("Test_SJS_Take: first_three_naturals.Item1(2) != 3")
 	}
 }
+
 
 func Test_SJS_Drop(t *testing.T) {
 	naturals := Range(1, -1)
@@ -273,21 +287,23 @@ func Test_SJS_Drop(t *testing.T) {
 	}
 }
 
-func Test_SJS_Maps(t *testing.T) {
+
+func Test_SJS_Map(t *testing.T) {
 	alphabet_ascii := Range('A', 'Z')
 	alphabet := alphabet_ascii.Map(func(code interface{}) interface{} {
 		return 'A'
 	})
 	if v := alphabet.Head1(); v != 'A' {
-		t.Error("Test_SJS_Maps: alphabet.Head1() != 'A'.", v)
+		t.Error("Test_SJS_Map: alphabet.Head1() != 'A'.", v)
 	}
 	if v := alphabet.Tail1().Head1(); v != 'A' {
-		t.Error("Test_SJS_Maps: alphabet.Tail1().Head1() != 'A'.", v)
+		t.Error("Test_SJS_Map: alphabet.Tail1().Head1() != 'A'.", v)
 	}
 	if v := alphabet.Item1(25); v != 'A' {
-		t.Error("Test_SJS_Maps: alphabet.Item(25) != 'A'.", v)
+		t.Error("Test_SJS_Map: alphabet.Item(25) != 'A'.", v)
 	}
 }
+
 
 func Test_SJS_Filter(t *testing.T) {
 	first_ten_naturals := Range(1.0, 10.0)
@@ -318,4 +334,100 @@ func Test_SJS_Filter(t *testing.T) {
 				return v
 		}
 	})
+}
+
+
+func Test_SJS_Reduce(t *testing.T) {
+	first_twenty_naturals := Range(1, 20)
+	twentieth_triangular_number_w_initial := first_twenty_naturals.Reduce(func(x, y interface{}) interface{} {
+		switch vx := x.(type) {
+			case int: {
+				switch vy := y.(type) {
+					case int: {
+						return vx + vy
+					}
+				}
+			}
+		}
+		return x
+	}, 0)
+
+	twentieth_triangular_number := first_twenty_naturals.Reduce(func(x, y interface{}) interface{} {
+		switch vx := x.(type) {
+			case int: {
+				switch vy := y.(type) {
+					case int: {
+						return vx + vy
+					}
+				}
+			}
+		}
+		return x
+	}, nil)
+
+	if twentieth_triangular_number_w_initial != 210 {
+		t.Error("Test_SJS_Reduce: twentieth_triangular_number_w_initial != 210.", twentieth_triangular_number_w_initial)
+	}
+
+	if twentieth_triangular_number != nil {
+		t.Error("Test_SJS_Reduce: twentieth_triangular_number != nil.", twentieth_triangular_number)
+	}
+}
+
+
+func Test_SJS_Sum(t *testing.T) {
+
+	first_twenty_naturals := Range(1, 20)
+	twentieth_triangular_number := first_twenty_naturals.Sum()
+	if twentieth_triangular_number != 210 {
+		t.Error("Test_SJS_Sum: twentieth_triangular_number != 210.", twentieth_triangular_number)
+	}
+
+	first_twenty_naturalsf64 := Range(1.0, 20.0)
+	twentieth_triangular_numberf64 := first_twenty_naturalsf64.Sum()
+	if twentieth_triangular_numberf64 != 210.0 {
+		t.Error("Test_SJS_Sum: twentieth_triangular_numberf64 != 210.0, ", twentieth_triangular_numberf64)
+	}
+}
+
+
+func Test_SJS_Scale(t *testing.T) {
+	first_ten_naturals := Range(1, 10)
+	first_ten_evens := first_ten_naturals.Scale(2)
+	if v := first_ten_evens.Length1(); v != 10 {
+		t.Error("Test_SJS_Scale: first_ten_evens.Length1() != 10.", v)
+	}
+	if v := first_ten_evens.Head1(); v != 2 {
+		t.Error("Test_SJS_Scale: first_ten_evens.Head1() != 2.", v)
+	}
+	if v := first_ten_evens.Item1(9); v != 20 {
+		t.Error("Test_SJS_Scale: first_ten_evens.Item1(9) != 20.", v)
+	}
+
+
+
+	first_ten_naturals_f64 := Range(1.0, 10.0)
+	first_ten_evens_f64 := first_ten_naturals_f64.Scale(2.0)
+	if v := first_ten_evens_f64.Length1(); v != 10.0 {
+		t.Error("Test_SJS_Scale: first_ten_evens_f64.Length1() != 10.0 ", v)
+	}
+	if v := first_ten_evens_f64.Head1(); v != 2.0 {
+		t.Error("Test_SJS_Scale: first_ten_evens_f64.Head1() != 2.0 ", v)
+	}
+	if v := first_ten_evens_f64.Item1(9); v != 20.0 {
+		t.Error("Test_SJS_Scale: first_ten_evens_f64.Item1(9) != 20.0 ", v)
+	}
+
+
+	first_ten_naturals_i64 := Range(int64(1), int64(10))
+	first_ten_evens_i64 := first_ten_naturals_i64.Scale(int64(2))
+	if v := first_ten_evens_i64.Length1(); v != 10 {
+		t.Error("Test_SJS_Scale: first_ten_evens_i64.Length1() != 10.", v)
+	}
+	if v := first_ten_evens_i64.Head1(); v != int64(2) {
+		t.Error("Test_SJS_Scale: first_ten_evens_i64.Head1() != 2.", v)
+	}
+	if v := first_ten_evens_i64.Item1(9); v != int64(20) {
+		t.Error("Test_SJS_Scale: first_ten_evens_i64.Item1(9) != 20.", v)
+	}
 }
