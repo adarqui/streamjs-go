@@ -1,37 +1,37 @@
 
-	STREAMJS-GO.
+    STREAMJS-GO.
 
-	streamjs-go is a port of stream.js (http://streamjs.org). This library provides lazy evaluation via "streams" (lazy lists) for GoLang. Streamjs's original README is provided further below with the golang specific code/excerpts mixed in.
+    streamjs-go is a port of stream.js (http://streamjs.org). This library provides lazy evaluation via "streams" (lazy lists) for GoLang. Streamjs's original README is provided further below with the golang specific code/excerpts mixed in.
 
-	Usage:
+    Usage:
 
-		git clone https://github.com/adarqui/streamjs-go
-		(cd streamjs-go; make; make test)
+        git clone https://github.com/adarqui/streamjs-go
+        (cd streamjs-go; make; make test)
 
-		go get github.com/adarqui/streamjs-go
-		import (
-			"github.com/adarqui/streamjs-go"
-		)
+        go get github.com/adarqui/streamjs-go
+        import (
+            "github.com/adarqui/streamjs-go"
+        )
 
-		s := stream.Range(1, -1)
+        s := stream.Range(1, -1)
 
-		...
+        ...
 
 
 
    TODO:
 
-	Go's "lack of generics" can cause some nutty type/switch casting. I plan on making all of the streamjs-go functions more 'generic' by creating xyzBy functions which take various parameters that you can supply to operate on the stream data. This will allow me to remove all of the interface{} typing from the actual stream functions, which will clean everything up significantly. Instead, i'd write the interface{} specific functions as example "generic functions" that will be used if the requested ByFN is nil/not supplied. This will pro-up the lib.
+    Go's "lack of generics" can cause some nutty type/switch casting. I plan on making all of the streamjs-go functions more 'generic' by creating xyzBy functions which take various parameters that you can supply to operate on the stream data. This will allow me to remove all of the interface{} typing from the actual stream functions, which will clean everything up significantly. Instead, i'd write the interface{} specific functions as example "generic functions" that will be used if the requested ByFN is nil/not supplied. This will pro-up the lib.
 
-	I don't plan on adding anything new to streamjs-go. I'd like it to remain a direct port of streamjs. Instead, i'd like to incorporate/import streamjs-go into Data.List-go. That's where I'll include the kitchen sink.
+    I don't plan on adding anything new to streamjs-go. I'd like it to remain a direct port of streamjs. Instead, i'd like to incorporate/import streamjs-go into Data.List-go. That's where I'll include the kitchen sink.
 
-	Apologies if this README gets absolutely wrecked (formatting-wise). I saved it via links and i'm editing it in vi.
+    Apologies if this README gets absolutely wrecked (formatting-wise). I saved it via links and i'm editing it in vi.
 
-	-- adarqui
+    -- adarqui
 
 
 
-	ORIGINAL STREAMJS README WITH GOLANG SPECIFIC CODE SUBSTITUTED FOR JAVASCRIPT CODE.
+    ORIGINAL STREAMJS README WITH GOLANG SPECIFIC CODE SUBSTITUTED FOR JAVASCRIPT CODE.
 
 
    Fork me on GitHub
@@ -70,11 +70,11 @@ Getting started
    items using Stream.make. Just pass it as arguments the items you want to be
    part of your stream:
 
-				js:
+                js:
 
                  var s = Stream.make( 10, 20, 30 ); // s is now a stream containing 10, 20, and 30
 
-				go:
+                go:
 
                  s := Make( 10, 20, 30 ); // s is now a stream containing 10, 20, and 30
             
@@ -84,7 +84,7 @@ Getting started
    particular items by index using s.item( i ). The first item of the stream can
    also be obtained by calling s.head(). Let's see it in action:
 
-				js:
+                js:
 
                  var s = Stream.make( 10, 20, 30 );
                  console.log( s.length() );  // outputs 3
@@ -94,14 +94,14 @@ Getting started
                  console.log( s.item( 2 ) ); // outputs 30
 
 
-				go:
+                go:
 
-				s = Make(10, 20, 30)
-				fmt.Printf("\ts.Length() = %d\n", s.Length1())
-				fmt.Printf("\ts.Head() = %d\n", s.Head1())
-				fmt.Printf("\ts.Item1(0) = %d\n", s.Item1(0))
-				fmt.Printf("\ts.Item1(1) = %d\n", s.Item1(1))
-				fmt.Printf("\ts.Item1(2) = %d\n", s.Item1(2))
+                s = Make(10, 20, 30)
+                fmt.Printf("\ts.Length() = %d\n", s.Length1())
+                fmt.Printf("\ts.Head() = %d\n", s.Head1())
+                fmt.Printf("\ts.Item1(0) = %d\n", s.Item1(0))
+                fmt.Printf("\ts.Item1(1) = %d\n", s.Item1(1))
+                fmt.Printf("\ts.Item1(2) = %d\n", s.Item1(2))
 
             
 
@@ -115,7 +115,7 @@ Getting started
    on an empty stream yields an error. You can check if a stream is empty using
    s.empty() which returns either true or false.
 
-				js:
+                js:
 
                  var s = Stream.make( 10, 20, 30 );
                  var t = s.tail();         // returns the stream that contains two items: 20 and 30
@@ -126,20 +126,20 @@ Getting started
                  console.log( v.empty() ); // prints true
 
 
-				go:
+                go:
 
-				s = Make(10, 20, 30)
-				t := s.Tail1()
-				fmt.Printf("\ts.Tail() = t.Head() = %d\n", t.Head1())
-				u := t.Tail1()
-				fmt.Printf("\tt.Tail() = u.Head() = %d\n", u.Head1())
-				v := u.Tail1()
-				fmt.Printf("\tv.Empty() = %v\n", v.Empty())
+                s = Make(10, 20, 30)
+                t := s.Tail1()
+                fmt.Printf("\ts.Tail() = t.Head() = %d\n", t.Head1())
+                u := t.Tail1()
+                fmt.Printf("\tt.Tail() = u.Head() = %d\n", u.Head1())
+                v := u.Tail1()
+                fmt.Printf("\tv.Empty() = %v\n", v.Empty())
 
 
    Here's a way to print all the elements in a stream:
 
-				js:
+                js:
 
                  var s = Stream.make( 10, 20, 30 );
                  while ( !s.empty() ) {
@@ -148,12 +148,12 @@ Getting started
                  }
 
 
-				go:
+                go:
 
-				s = Make(10, 20, 30)
-				for ; !s.Empty() ; s = s.Tail1() {
-					fmt.Printf("\tValue = %d\n", s.Head1())
-				}
+                s = Make(10, 20, 30)
+                for ; !s.Empty() ; s = s.Tail1() {
+                    fmt.Printf("\tValue = %d\n", s.Head1())
+                }
 
             
 
@@ -165,16 +165,16 @@ What else can I do with them?
    One of the useful shortcuts is the Stream.range( min, max ) function. It
    returns a stream with the natural numbers ranging from min to max inclusive.
 
-				js:
+                js:
 
                  var s = Stream.range( 10, 20 );
                  s.print(); // prints the numbers from 10 to 20
 
 
-				go:
+                go:
 
-				s = Range(10, 20)
-				s.Print(-1)
+                s = Range(10, 20)
+                s.Print(-1)
 
             
 
@@ -183,7 +183,7 @@ What else can I do with them?
    the stream of the return values of that function. So you can use it to, for
    example, double the numbers in your stream:
 
-				js:
+                js:
 
                  function doubleNumber( x ) {
                      return 2 * x;
@@ -195,27 +195,27 @@ What else can I do with them?
                  doubles.print(); // prints 20, 22, 24, 26, 28, 30
 
 
-				go:
+                go:
 
-				doubleNumber := func(x int) int {
-					return 2 * x
-				}
-				doubleNumberInterface := func(x interface{}) interface{} {
-					switch v := x.(type) {
-						case int:
-							return doubleNumber(v)
-						default:
-							return v
-					}
-				}
+                doubleNumber := func(x int) int {
+                    return 2 * x
+                }
+                doubleNumberInterface := func(x interface{}) interface{} {
+                    switch v := x.(type) {
+                        case int:
+                            return doubleNumber(v)
+                        default:
+                            return v
+                    }
+                }
 
-				fmt.Println("\tNumbers 10-15")
-				numbers := Range(10, 15)
-				numbers.Print(-1)
+                fmt.Println("\tNumbers 10-15")
+                numbers := Range(10, 15)
+                numbers.Print(-1)
 
-				fmt.Println("\tNumbers 10-15 doubled")
-				doubles := numbers.Map(doubleNumberInterface)
-				doubles.Print(-1)
+                fmt.Println("\tNumbers 10-15 doubled")
+                doubles := numbers.Map(doubleNumberInterface)
+                doubles.Print(-1)
             
 
    Cool, right? Similarly s.filter( f ) takes an argument f, a function, and runs
@@ -224,7 +224,7 @@ What else can I do with them?
    elements in your stream. Let's construct a stream keeping only the odd numbers
    of an original stream using this idea:
 
-				js:
+                js:
 
                  function checkIfOdd( x ) {
                      if ( x % 2 == 0 ) {
@@ -242,28 +242,28 @@ What else can I do with them?
                  onlyOdds.print(); // prints 11, 13, 15
 
 
-				go:
+                go:
 
-				checkIfOdd := func(x interface{}) bool {
-					switch v := x.(type) {
-						case int:
-							if (v % 2) == 0 {
-								return false
-							} else {
-								return true
-							}
-						default:
-							return false
-					}
-				}
+                checkIfOdd := func(x interface{}) bool {
+                    switch v := x.(type) {
+                        case int:
+                            if (v % 2) == 0 {
+                                return false
+                            } else {
+                                return true
+                            }
+                        default:
+                            return false
+                    }
+                }
 
-				fmt.Println("\tNumbers 10-15")
-				numbers = Range(10, 15)
-				numbers.Print(-1)
+                fmt.Println("\tNumbers 10-15")
+                numbers = Range(10, 15)
+                numbers.Print(-1)
 
-				fmt.Println("\tNumbers 10-15 Filtered for odd's")
-				onlyOdds := numbers.Filter(checkIfOdd)
-				onlyOdds.Print(-1)
+                fmt.Println("\tNumbers 10-15 Filtered for odd's")
+                onlyOdds := numbers.Filter(checkIfOdd)
+                onlyOdds.Print(-1)
 
 
             
@@ -272,7 +272,7 @@ What else can I do with them?
    on every element of the stream, but it doesn't affect the stream in any way.
    Here's another way to print the elements of stream:
 
-				js:
+                js:
 
                  function printItem( x ) {
                      console.log( 'The element is: ' + x );
@@ -285,32 +285,32 @@ What else can I do with them?
                  numbers.walk( printItem );
 
 
-				go:
+                go:
 
-				printItem := func(x interface{}) interface{} {
-					fmt.Printf("The element is: %v\n", x)
-					return x
-				}
-				numbers = Range(10, 12)
-				numbers.Walk(printItem)
+                printItem := func(x interface{}) interface{} {
+                    fmt.Printf("The element is: %v\n", x)
+                    return x
+                }
+                numbers = Range(10, 12)
+                numbers.Walk(printItem)
 
             
 
    One more useful function: s.take( n ) returns a stream with the first n
    elements of your original stream. That's useful for slicing streams:
 
-				js:
+                js:
 
                  var numbers = Stream.range( 10, 100 ); // numbers 10...100
                  var fewerNumbers = numbers.take( 10 ); // numbers 10...19
                  fewerNumbers.print();
 
 
-				go:
+                go:
 
-				numbers = Range(10, 100)
-				fewerNumbers := numbers.Take(10)
-				fewerNumbers.Print(10)
+                numbers = Range(10, 100)
+                fewerNumbers := numbers.Take(10)
+                fewerNumbers.Print(10)
 
             
 
@@ -318,7 +318,7 @@ What else can I do with them?
    stream by factor; and s.add( t ) adds each element of the stream s to each
    element of the stream t and returns the result. Let's see an example of this:
 
-				js:
+                js:
 
                  var numbers = Stream.range( 1, 3 );
                  var multiplesOfTen = numbers.scale( 10 );
@@ -326,14 +326,14 @@ What else can I do with them?
                  numbers.add( multiplesOfTen ).print(); // prints 11, 22, 33
 
 
-				go:
+                go:
 
-				numbers = Range(1, 3)
-				fmt.Println("\tNumbers 1-3 scaled by 10")
-				multiplesOfTen := numbers.Scale(10)
-				multiplesOfTen.Print(-1)
-				fmt.Println("\tNumbers 1-3 scaled by 10, Add")
-				numbers.Add(multiplesOfTen).Print(-1)
+                numbers = Range(1, 3)
+                fmt.Println("\tNumbers 1-3 scaled by 10")
+                multiplesOfTen := numbers.Scale(10)
+                multiplesOfTen.Print(-1)
+                fmt.Println("\tNumbers 1-3 scaled by 10, Add")
+                numbers.Add(multiplesOfTen).Print(-1)
 
             
 
@@ -357,18 +357,18 @@ Does that require infinite memory/time/processing power?
    work really fast, like regular arrays. Here's an example that prints the
    numbers from 1 to 10:
 
-				js:
+                js:
 
                  var naturalNumbers = Stream.range(); // returns the stream containing all natural numbers from 1 and up
                  var oneToTen = naturalNumbers.take( 10 ); // returns the stream containing the numbers 1...10
                  oneToTen.print();
 
 
-				go:
+                go:
 
-				naturalNumbers := Range(1, -1)
-				oneToTen := naturalNumbers.Take(10)
-				oneToTen.Print(-1)
+                naturalNumbers := Range(1, -1)
+                oneToTen := naturalNumbers.Take(10)
+                oneToTen.Print(-1)
 
             
 
@@ -381,7 +381,7 @@ You're cheating
    concepts that matters. Let's play with this a little more and construct the
    streams containing all even numbers and all odd numbers respectively.
 
-				js:
+                js:
 
                  var naturalNumbers = Stream.range(); // naturalNumbers is now 1, 2, 3, ...
                  var evenNumbers = naturalNumbers.map( function ( x ) {
@@ -394,29 +394,29 @@ You're cheating
                  oddNumbers.take( 3 ).print(); // prints 1, 3, 5
 
 
-				go:
+                go:
 
-				naturalNumbers = Range(1, -1)
-				evenNumbers := naturalNumbers.Map(func(x interface{}) interface{} {
-					switch v := x.(type) {
-						case int:
-							return 2 * v
-						default:
-							return x
-					}
-				})
-				oddNumbers := naturalNumbers.Filter(func(x interface{}) bool {
-					switch v := x.(type) {
-						case int:
-							return (v % 2) != 0
-						default:
-							return false
-					}
-				})
-				fmt.Println("\tTake(3) of Even Numbers from 1 to Infiniti")
-				evenNumbers.Take(3).Print(-1)
-				fmt.Println("\tTake(3) of Odd Numbers from 1 to Infinity")
-				oddNumbers.Take(3).Print(-1)
+                naturalNumbers = Range(1, -1)
+                evenNumbers := naturalNumbers.Map(func(x interface{}) interface{} {
+                    switch v := x.(type) {
+                        case int:
+                            return 2 * v
+                        default:
+                            return x
+                    }
+                })
+                oddNumbers := naturalNumbers.Filter(func(x interface{}) bool {
+                    switch v := x.(type) {
+                        case int:
+                            return (v % 2) != 0
+                        default:
+                            return false
+                    }
+                })
+                fmt.Println("\tTake(3) of Even Numbers from 1 to Infiniti")
+                evenNumbers.Take(3).Print(-1)
+                fmt.Println("\tTake(3) of Odd Numbers from 1 to Infinity")
+                oddNumbers.Take(3).Print(-1)
 
             
 
@@ -429,7 +429,7 @@ You're cheating
    returning the tail (a stream with all the rest of the elements), which could
    potentially be the empty stream. Confusing? Let's look at an example:
 
-				js:
+                js:
 
                  var s = new Stream( 10, function () {
                      return new Stream();
@@ -448,31 +448,31 @@ You're cheating
                  t.print(); // prints 10, 20, 30
 
 
-				go:
+                go:
 
-				s = NewStream(10, func(v interface{}, fn STREAMFN) *Stream {
-					return NewStream(nil, nil)
-				})
-				fmt.Printf("\ts.Head() = %d\n", s.Head1())
-				s.Print(-1)
+                s = NewStream(10, func(v interface{}, fn STREAMFN) *Stream {
+                    return NewStream(nil, nil)
+                })
+                fmt.Printf("\ts.Head() = %d\n", s.Head1())
+                s.Print(-1)
 
-				t = NewStream(10, func(v interface{}, fn STREAMFN) *Stream {
-					return NewStream(20, func(v interface{}, fn STREAMFN) *Stream {
-						return NewStream(30, func(v interface{}, fn STREAMFN) *Stream {
-							return NewStream(nil, nil)
-						})
-					})
-				})
+                t = NewStream(10, func(v interface{}, fn STREAMFN) *Stream {
+                    return NewStream(20, func(v interface{}, fn STREAMFN) *Stream {
+                        return NewStream(30, func(v interface{}, fn STREAMFN) *Stream {
+                            return NewStream(nil, nil)
+                        })
+                    })
+                })
 
-				fmt.Println("\tThree streams created manually via NewStream")
-				t.Print(-1)
+                fmt.Println("\tThree streams created manually via NewStream")
+                t.Print(-1)
             
 
    Too much trouble for nothing? You can always use Stream.make( 10, 20, 30 ) to
    do this. But notice that this way we can construct our own infinite streams
    easily. Let's make a stream which is an endless series of ones:
 
-				js:
+                js:
 
                  function ones() {
                      return new Stream(
@@ -487,15 +487,15 @@ You're cheating
                  s.take( 3 ).print(); // prints 1, 1, 1
 
 
-				go:
+                go:
 
 
-				func Ones(v interface{}, fn STREAMFN) *Stream {
-					return NewStream(1, Ones)
-				}
+                func Ones(v interface{}, fn STREAMFN) *Stream {
+                    return NewStream(1, Ones)
+                }
 
-				s = NewStream(1, Ones)
-				s.Take(3).Print(-1)
+                s = NewStream(1, Ones)
+                s.Take(3).Print(-1)
             
 
    Notice that if you use s.print() on an infinite stream, it will print for
@@ -510,7 +510,7 @@ You're cheating
    Let's see if we can make something more interesting. Here's an alternative and
    interesting way to create the stream of natural numbers:
 
-				js:
+                js:
 
                  function ones() {
                      return new Stream( 1, ones );
@@ -535,15 +535,15 @@ You're cheating
                  naturalNumbers().take( 5 ).print(); // prints 1, 2, 3, 4, 5
 
 
-				go:
+                go:
 
-				func NaturalNumbers(v interface{}, fn STREAMFN) *Stream {
-					return NewStream(1, func(v interface{}, fn STREAMFN) *Stream {
-						return Ones(1, nil).Add(NaturalNumbers(v, fn))
-					})
-				}
+                func NaturalNumbers(v interface{}, fn STREAMFN) *Stream {
+                    return NewStream(1, func(v interface{}, fn STREAMFN) *Stream {
+                        return Ones(1, nil).Add(NaturalNumbers(v, fn))
+                    })
+                }
 
-				NaturalNumbers(1, nil).Take(5).Print(-1)
+                NaturalNumbers(1, nil).Take(5).Print(-1)
 
             
 
@@ -554,7 +554,7 @@ You're cheating
    Let's now turn to a little harder example. It's left as an exercise for the
    reader to figure out what the following piece of code does.
 
-				js:
+                js:
 
                  function sieve( s ) {
                      var h = s.head();
@@ -567,34 +567,34 @@ You're cheating
                  sieve( Stream.range( 2 ) ).take( 10 ).print();
 
 
-				go:
+                go:
 
-				/*
-				* haskell:
-				*  sieve (p : xs) = p : sieve [x | x <- xs, x `mod` p > 0]
-				*  take 10 $ sieve [2..]
-				*/
+                /*
+                * haskell:
+                *  sieve (p : xs) = p : sieve [x | x <- xs, x `mod` p > 0]
+                *  take 10 $ sieve [2..]
+                */
 
-				func Sieve(s *Stream) *Stream {
-					h := s.Head1()
-					return NewStream(h, func (v interface{}, fn STREAMFN) *Stream {
-						return Sieve(s.Tail1().Filter(func(x interface{}) bool {
-							switch d := x.(type) {
-								case int:
-									switch dh := h.(type) {
-											case int:
-												return d % dh != 0
-											default:
-												return false
-									}
-								default:
-									return false
-							}
-						}))
-					})
-				}
+                func Sieve(s *Stream) *Stream {
+                    h := s.Head1()
+                    return NewStream(h, func (v interface{}, fn STREAMFN) *Stream {
+                        return Sieve(s.Tail1().Filter(func(x interface{}) bool {
+                            switch d := x.(type) {
+                                case int:
+                                    switch dh := h.(type) {
+                                            case int:
+                                                return d % dh != 0
+                                            default:
+                                                return false
+                                    }
+                                default:
+                                    return false
+                            }
+                        }))
+                    })
+                }
 
-				Sieve(Range(2, -1)).Take(10).Print(-1)
+                Sieve(Range(2, -1)).Take(10).Print(-1)
             
 
    Make sure you take some time to figure out what this does. Most programmers
