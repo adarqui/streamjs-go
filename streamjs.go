@@ -126,16 +126,11 @@ func (this *Stream) Length() (int64, error) {
 	var err error
 	_len := int64(0)
 	st := this
-	for {
-		v := st.Empty()
-		if v == true {
+	for ; !st.Empty() ; st, err = st.Tail() {
+		if err != nil {
 			break
 		}
 		_len = _len + 1
-		st, err = st.Tail()
-		if err != nil {
-			return _len, err
-		}
 	}
 	return _len, nil
 }
@@ -291,11 +286,7 @@ func (this *Stream) Force() {
 	var err error
 
 	st = this
-	for {
-		if st.Empty() {
-			break
-		}
-		st, err = st.Tail()
+	for ; !st.Empty(); st, err = st.Tail() {
 		if err != nil {
 			break
 		}
@@ -364,22 +355,16 @@ func (this *Stream) Drop(n int64) *Stream {
 }
 
 func (this *Stream) Member(v interface{}) (bool, error) {
+	var errt error
 	self := this
 
-	for {
-		if self.Empty() {
-			break
-		}
+	for ; !self.Empty() && errt == nil ; self, errt = self.Tail() {
 		d, err := self.Head()
 		if err != nil {
 			break
 		}
 		if d == v {
 			return true, nil
-		}
-		self, err = self.Tail()
-		if err != nil {
-			break
 		}
 	}
 
