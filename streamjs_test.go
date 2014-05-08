@@ -1,4 +1,4 @@
-package streamjs
+package stream
 
 import (
 	"fmt"
